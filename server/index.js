@@ -42,9 +42,20 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() });
 });
 
-// 404 处理
-app.use((req, res) => {
-  logger.warn('【404错误】路由不存在', {
+// 前端路由回退（SPA fallback - 必须放在所有 API 路由之后）
+// 所有非 API 请求都返回 index.html，由前端路由处理
+app.get('*', (req, res, next) => {
+  // 只对非 API 请求返回 index.html
+  if (!req.path.startsWith('/api')) {
+    res.sendFile('dist/index.html', { root: '..' });
+  } else {
+    next();
+  }
+});
+
+// API 404 处理（只处理 /api 开头的请求）
+app.use('/api', (req, res) => {
+  logger.warn('【404错误】API路由不存在', {
     请求方法: req.method,
     请求路径: req.url,
     完整URL: `${req.protocol}://${req.get('host')}${req.originalUrl}`,
@@ -64,11 +75,6 @@ app.use((err, req, res, next) => {
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
     },
   });
-});
-
-// 前端路由回退
-app.get('*', (req, res) => {
-  res.sendFile('dist/index.html', { root: '..' });
 });
 
 // 启动服务器
