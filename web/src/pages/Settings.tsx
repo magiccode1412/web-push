@@ -162,6 +162,24 @@ export function Settings() {
   }
 
   async function togglePushSubscription() {
+    // 关键：必须在用户手势的同步上下文中请求权限
+    // 不能在 setLoading 或其他异步操作之后
+    if (!pushEnabled) {
+      // 检查当前权限状态
+      if (Notification.permission === 'denied') {
+        showToastMessage('通知权限已被禁用，请在浏览器设置中手动开启', 'error')
+        return
+      }
+      // 同步请求权限（必须在用户手势上下文中）
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') {
+          showToastMessage('请允许推送通知权限', 'error')
+          return
+        }
+      }
+    }
+
     setLoading(true)
     try {
       if (pushEnabled) {
@@ -169,11 +187,6 @@ export function Settings() {
         setPushEnabled(false)
         showToastMessage('已关闭消息推送', 'success')
       } else {
-        const permission = await pushService.requestPermission()
-        if (permission !== 'granted') {
-          showToastMessage('请允许推送通知权限', 'error')
-          return
-        }
         const result = await pushService.subscribe()
         if (result) {
           setPushEnabled(true)

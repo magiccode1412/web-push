@@ -48,6 +48,23 @@ export const pushService = {
       throw new Error('浏览器不支持通知功能');
     }
 
+    // 先检查当前权限状态
+    const currentPermission = Notification.permission;
+    debugService.info('permission', '当前权限状态', { permission: currentPermission });
+
+    // 如果已经是 granted，直接返回
+    if (currentPermission === 'granted') {
+      debugService.success('permission', '通知权限已授予');
+      return 'granted';
+    }
+
+    // 如果是 denied，浏览器不会再弹出权限请求，需要引导用户手动设置
+    if (currentPermission === 'denied') {
+      debugService.error('permission', '通知权限已被拒绝，需要用户手动恢复');
+      throw new Error('PERMISSION_DENIED');
+    }
+
+    // 只有 default 状态才会弹出权限请求
     debugService.info('permission', '请求通知权限');
     const permission = await Notification.requestPermission();
     debugService.logPermissionRequest(permission);
