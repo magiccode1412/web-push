@@ -1,0 +1,58 @@
+# 依赖和构建产物
+node_modules
+dist
+dev-dist
+
+# Git 和编辑器
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# 环境配置文件（敏感信息）
+.env
+.env.local
+.env.*.local
+
+# 日志和测试
+coverage
+*.log
+logs/
+*.log.*
+
+# 测试相关
+tests/
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+playwright.config.ts
+vitest.config.ts
+
+# Docker 相关（构建时不需要）
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 文档
+*.md
+plan.md
+README*
+CHANGELOG*
+LICENSE*
+
+# CI/CD 配置
+.github/
+.gitlab-ci.yml
+.travis.yml
+.cnb.yml
+
+# 开发工具配置
+.eslintrc*
+.prettierrc*
+.editorconfig
+.eslintignore
+
+.codebuddy

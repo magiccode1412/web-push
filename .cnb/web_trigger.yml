@@ -1,0 +1,5 @@
+branch:
+  - buttons:
+      - name: 构建docker镜像
+        description: 触发构建docker镜像事件
+        event: web_trigger

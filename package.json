@@ -1,0 +1,17 @@
+{
+  "name": "web-push",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:web": "pnpm --filter ./web run dev",
+    "dev:server": "pnpm --filter ./server run dev",
+    "dev:all": "concurrently \"pnpm run dev:web\" \"pnpm run dev:server\"",
+    "build": "pnpm --filter ./web run build",
+    "preview": "pnpm --filter ./web run preview",
+    "start": "pnpm --filter ./server run start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
