@@ -14,6 +14,7 @@ main:
   web_trigger_main:
     - services:
         - docker
+      imports: https://cnb.cool/magiccode1412/secret/-/blob/main/env.yml
       stages:
         - name: docker build
           script: bash scripts/docker.sh main
@@ -33,6 +34,7 @@ dev:
   web_trigger_dev:
     - services:
         - docker
+      imports: https://cnb.cool/magiccode1412/secret/-/blob/main/env.yml
       stages:
         - name: docker build
           script: bash scripts/docker.sh dev
