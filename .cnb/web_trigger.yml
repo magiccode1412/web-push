@@ -1,5 +1,8 @@
 branch:
   - buttons:
       - name: 构建docker镜像
-        description: 触发构建docker镜像事件
-        event: web_trigger
+        description: 触发构建latest镜像事件
+        event: web_trigger_main
+      - name: 构建docker镜像dev
+        description: 触发构建dev镜像事件
+        event: web_trigger_dev

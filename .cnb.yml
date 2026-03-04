@@ -11,7 +11,7 @@ $:
           script: bash scripts/dev.sh
 
 main:
-  web_trigger:
+  web_trigger_main:
     - services:
         - docker
       stages:
@@ -30,7 +30,7 @@ main:
             password: "${GITHUB_ACCESS_TOKEN}"
             force: true
 dev:
-  web_trigger:
+  web_trigger_dev:
     - services:
         - docker
       stages:
