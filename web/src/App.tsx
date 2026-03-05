@@ -37,6 +37,30 @@ function Navigation() {
     }
   }, [navigate])
 
+  useEffect(() => {
+    // 使用事件委托拦截所有 a 元素的点击事件
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      // 向上查找最近的 a 元素
+      const anchor = target.closest('a')
+      
+      if (anchor) {
+        const href = anchor.getAttribute('href')
+        // 只处理有有效 href 且不是锚点链接的情况
+        if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
+          event.preventDefault()
+          window.open(href, '_blank')
+        }
+      }
+    }
+
+    document.addEventListener('click', handleClick)
+    
+    return () => {
+      document.removeEventListener('click', handleClick)
+    }
+  }, [])
+
   return (
     <>
       {showBackgroundImage && <BackgroundImage imageUrl={import.meta.env.VITE_BG_URL} />}
