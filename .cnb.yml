@@ -16,6 +16,7 @@ main:
         tags: cnb:arch:amd64
       services:
         - docker
+      imports: https://cnb.cool/magiccode1412/secret/-/blob/main/env.yml
       env:
         CNB_IMAGE_TAG: ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest-linux-amd64
         DOCKERHUB_IMAGE_TAG: ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest-linux-amd64
@@ -38,6 +39,7 @@ main:
         tags: cnb:arch:arm64:v8
       services:
         - docker
+      imports: https://cnb.cool/magiccode1412/secret/-/blob/main/env.yml
       env:
         CNB_IMAGE_TAG: ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest-linux-arm64
         DOCKERHUB_IMAGE_TAG: ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest-linux-arm64
@@ -81,6 +83,8 @@ main:
         - name: manifest_dockerhub
           image: cnbcool/manifest
           settings:
+            username: ${DOCKERHUB_USERNAME}
+            password: ${DOCKERHUB_TOKEN}
             target: ${DOCKERHUB_IMAGE_TAG}
             template: ${DOCKERHUB_IMAGE_TAG}-OS-ARCH
             platforms:
