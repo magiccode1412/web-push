@@ -63,6 +63,7 @@ main:
       env:
         CNB_IMAGE_TAG: ${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:latest
         DOCKERHUB_IMAGE_TAG: ${DOCKERHUB_USERNAME}/${CNB_REPO_NAME_LOWERCASE}:latest
+      imports: https://cnb.cool/magiccode1412/secret/-/blob/main/env.yml
       stages:
         - name: await the amd64
           type: cnb:await
