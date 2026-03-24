@@ -1,8 +1,7 @@
-# Web Push Notification System
-
-一个基于 Web Push API 的实时推送通知系统，使用 Service Worker 实现完美的推送体验。部署在 EdgeOne Pages 上，前后端一体化，无需独立服务器。
-
-[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?template=https://github.com/magiccode1412/web-push)
+<div align="center">
+   <h1 align="center">Web Push Notification System</h1>
+   一个基于 Web Push API 的实时推送通知系统，使用 Service Worker 实现完美的推送体验。部署在 EdgeOne Pages 上，前后端一体化，无需独立服务器。
+</div>
 
 ## 写在前面（碎碎念）
 
@@ -14,6 +13,17 @@
 注意：
 + Firefox未做测试
 + safari未做测试（没有苹果设备）
+
+## 一键部署
+
++ 国内版
+
+[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://console.cloud.tencent.com/pages/new?repository-url=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push)
+
++ 国际版
+
+[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?repository-url=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push)
+
 
 ## 原理
 
