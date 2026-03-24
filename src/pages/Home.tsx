@@ -60,6 +60,12 @@ export function Home() {
 
   const unreadCount = items.filter(item => !item.read).length
 
+  const handleMarkAllAsRead = async () => {
+    if (unreadCount === 0) return
+    await dbService.markAllAsRead()
+    setItems(prev => prev.map(msg => ({ ...msg, read: true })))
+  }
+
   return (
     <div className="min-h-screen pb-20 max-w-[800px] mx-auto">
       {/* 顶部欢迎区域 */}
@@ -85,13 +91,16 @@ export function Home() {
             <div className="text-xs text-muted-foreground font-mono">TOTAL_MSG</div>
           </div>
         </Card>
-        <Card className="glow-card rounded-lg p-4 flex items-center gap-3">
+        <Card
+          className={`glow-card rounded-lg p-4 flex items-center gap-3 transition-all duration-200 ${unreadCount > 0 ? 'cursor-pointer hover:border-neon-purple/60 active:scale-[0.97]' : ''}`}
+          onClick={handleMarkAllAsRead}
+        >
           <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-neon-purple/10 border border-neon-purple/30">
             <Sparkles size={18} className="text-neon-purple" />
           </div>
           <div className="text-foreground">
             <div className="text-xl font-bold leading-none mb-1 font-mono text-neon-purple">{unreadCount}</div>
-            <div className="text-xs text-muted-foreground font-mono">UNREAD</div>
+            <div className="text-xs text-muted-foreground font-mono">{unreadCount > 0 ? 'TAP_READ_ALL' : 'UNREAD'}</div>
           </div>
         </Card>
       </div>

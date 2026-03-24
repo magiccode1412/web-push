@@ -10,6 +10,7 @@ $:
         - name: install dependence
           script: bash scripts/dev.sh
 
+main:
   push:
     - imports: https://cnb.cool/magiccode1412/secret/-/blob/main/env.yml
       stages:
