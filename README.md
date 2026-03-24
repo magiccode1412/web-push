@@ -1,6 +1,8 @@
 # Web Push Notification System
 
-一个基于 Web Push API 的实时推送通知系统，使用 Service Worker 实现完美的推送体验。
+一个基于 Web Push API 的实时推送通知系统，使用 Service Worker 实现完美的推送体验。部署在 EdgeOne Pages 上，前后端一体化，无需独立服务器。
+
+[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?template=https://github.com/magiccode1412/web-push)
 
 ## 写在前面（碎碎念）
 
@@ -15,14 +17,14 @@
 
 ## 原理
 
-利用 Service Worker 的实时推送功能，实现浏览器原生的推送通知系统。后端使用 Web Push 库发送推送消息，前端通过 Service Worker 接收并处理推送通知，所有消息持久化存储到 IndexedDB。
+利用 Service Worker 的实时推送功能，实现浏览器原生的推送通知系统。后端基于 EdgeOne Pages 的 Node Functions，使用 Web Push 库发送推送消息，EdgeOne KV 存储订阅信息。前端通过 Service Worker 接收并处理推送通知，所有消息持久化存储到 IndexedDB。
 
 ## 架构
 
 - **前端**：React 19 + TypeScript + Vite + Tailwind CSS
-- **后端**：Node.js + Express + SQLite3 + web-push + Winston 日志
-- **部署**：支持本地开发、PM2 部署和 Docker 部署
-- **存储**：IndexedDB（前端）+ SQLite3（后端）
+- **后端**：EdgeOne Pages (Edge Functions + Node Functions)
+- **存储**：IndexedDB（前端消息）+ EdgeOne KV（订阅数据）
+- **推送**：web-push 库
 
 ## 浏览器兼容性
 
@@ -50,7 +52,7 @@
 
 3. **HTTPS 要求**
    - Web Push API 必须在 HTTPS 环境下运行
-   - localhost 是唯一的 HTTP 环境例外（仅用于开发）
+   - EdgeOne Pages 部署自带 HTTPS，无需额外配置
 
 ## 功能
 
@@ -72,27 +74,13 @@
    - 自动标记已读
    - 图片不存在时使用随机图片 API
 
-3. **管理后台**
-   - 查看所有推送记录
-   - 支持按标题和内容搜索
-   - 显示消息类型（广播/定向推送）
-   - 时间格式化显示（刚刚、X分钟前、X小时前等）
-
-4. **手动推送**（需要验证 PUSH_TOKEN）
+3. **手动推送**（需要验证 PUSH_TOKEN）
    - 发送广播消息或定向推送
    - 支持添加图片 URL
    - 推送 Token 自动保存到本地
    - 实时显示发送结果
 
-5. **设置页面**
-   - 开启/关闭消息推送
-   - 查看和管理用户 ID
-   - 随机生成新用户 ID
-   - 查看应用版本信息
-   - 清空本地存储数据
-   - 推送测试功能
-
-6. **调试日志页面**
+4. **调试日志页面**
    - 实时查看应用运行日志
    - 按分类和级别过滤日志
    - 浏览器能力检测（Service Worker、Push API、HTTPS 等）
@@ -100,17 +88,12 @@
    - 详细的错误堆栈信息
    - 自动检测 Edge 移动端并提示用户
 
-7. **管理员登录**
-   - 密码验证登录
-   - JWT Token 认证
-   - Token 持久化存储
-
-8. **底部导航**
+5. **底部导航**
    - 固定在页面底部的悬浮导航
    - 玻璃态设计风格
    - 平滑的页面切换动画
 
-9. **Service Worker 功能**
+6. **Service Worker 功能**
    - 接收推送通知并显示
    - IndexedDB 消息存储管理（增删改查）
    - 通知点击处理（支持聚焦现有窗口和打开新窗口）
@@ -119,27 +102,12 @@
 
 ### 后端接口
 
-1. **认证接口**
-   - `POST /api/auth/login` - 登录获取 JWT token
-   - Token 验证中间件
-
-2. **推送接口**
-   - `POST /api/push` - 发送推送消息（需要 PUSH_TOKEN）
+1. **推送接口**
+   - `POST /api/push` - 发送推送消息（支持 PUSH_TOKEN 认证，支持广播和定向推送）
    - `GET /api/vapid-key` - 获取 VAPID 公钥
 
-3. **订阅接口**
-   - `POST /api/subscribe` - 保存推送订阅信息到数据库
-   - `DELETE /api/subscribe/:id` - 删除订阅（需要 JWT token）
-   - `GET /api/subscribe/list` - 获取订阅列表（需要 JWT token）
-
-4. **记录接口**
-   - `GET /api/records/list` - 获取推送记录列表（需要 JWT token）
-
-5. **日志系统**
-   - Winston 日志框架
-   - 按日期自动轮转日志文件
-   - 日志审计和保留策略
-   - 详细记录推送流程和错误信息
+2. **订阅接口**
+   - `POST /api/subscribe` - 保存/取消推送订阅（支持白名单过滤）
 
 ## 常见问题
 
@@ -149,21 +117,17 @@
 1. 使用了 Edge 移动端浏览器（不支持 Web Push）
 2. Chrome 浏览器无法访问 Google 推送服务（需要代理网络）
 3. VAPID 公钥配置错误或未配置
+4. 用户不在白名单中
 
 **解决方案：**
 1. 使用 Chrome 浏览器（推荐）
 2. 确保网络可以访问 Google 服务（`fcm.googleapis.com`）
-3. 检查服务器日志和前端调试日志
-4. 确认 `.env` 文件中已配置有效的 VAPID 密钥
+3. 检查 EdgeOne Pages 控制台中的环境变量配置
+4. 在调试日志页面查看详细的错误日志
 
 ### Q2: 推送消息发送失败，日志显示 "getaddrinfo ENOTFOUND permanently-removed.invalid"
 
-**原因：** 这是 Edge 移动端返回的无效 endpoint
-
-**解决方案：**
-1. 在管理后台删除该用户的订阅
-2. 引导用户使用 Chrome 浏览器重新订阅
-3. 系统会自动清理此类无效订阅
+**原因：** 这是 Edge 移动端返回的无效 endpoint，系统会自动清理此类无效订阅。
 
 ### Q3: 为什么浏览器订阅时需要代理网络？
 
@@ -184,8 +148,8 @@ curl -I https://fcm.googleapis.com
 1. 用户点击订阅按钮
 2. 浏览器连接到推送服务（FCM/WNS/Mozilla Push）
 3. 推送服务返回唯一的 endpoint URL
-4. 前端将 endpoint 发送给你的后端
-5. 后端使用这个 endpoint 发送推送消息
+4. 前端将 endpoint 发送给 Node Function
+5. Node Function 使用这个 endpoint 发送推送消息
 
 **不同浏览器的 endpoint 示例：**
 - Chrome: `https://fcm.googleapis.com/fcm/send/...`
@@ -207,12 +171,12 @@ curl -I https://fcm.googleapis.com
 **作用：**
 - 不是用来生成 endpoint
 - 而是用来验证服务器身份，防止未授权的服务器向用户发送推送
-- 公钥发给浏览器，私钥保存在服务器
+- 公钥发给浏览器，私钥保存在 EdgeOne 环境变量中
 - 浏览器使用公钥加密推送消息，只有私钥才能解密
 
 **生成方法：**
 ```bash
-npx web-push generate-vapid-keys
+pnpm run generate-vapid
 ```
 
 ### Q7: 点击通知为什么没有打开页面？
@@ -236,30 +200,25 @@ npx web-push generate-vapid-keys
 bash scripts/dev.sh
 ```
 
-> 脚本会自动创建 `.env` 文件并生成 VAPID 密钥对，你只需配置 `JWT_SECRET`、`ADMIN_PASSWORD`、`PUSH_TOKEN`
+> 脚本会自动创建 `.env` 文件并生成 VAPID 密钥对。将生成的密钥配置到 EdgeOne Pages 控制台即可。
 
 ### 2. 开发模式
 
 ```bash
-# 同时启动前后端
-pnpm run dev:all
-
-# 或分别启动
-pnpm run dev:web      # 前端 (端口 5173)
-pnpm run dev:server   # 后端 (端口 3001)
+pnpm run dev
 ```
+
+启动 Vite 开发服务器（端口 5173）。注意：本地开发时后端 API 不可用，需要部署到 EdgeOne Pages 才能测试完整功能。
 
 ### 3. 生产部署
 
-```bash
-# 构建前端
-pnpm run build
+部署到 EdgeOne Pages：
 
-# 启动后端服务器
-pnpm run start
+```bash
+pnpm run build
 ```
 
-服务器将在 `http://localhost:3001` 启动。
+将项目根目录连接到 EdgeOne Pages，EdgeOne 会自动识别 `edge-functions/`、`node-functions/` 目录和静态资源进行部署。
 
 ## 技术栈
 
@@ -270,138 +229,131 @@ pnpm run start
 - **Tailwind CSS** - CSS 框架
 - **Radix UI** - 无样式 UI 组件库
 - **React Router** - 路由管理
-- **Web Push** - 推送功能
-- **IndexedDB** - 客户端数据存储
+- **IndexedDB (idb-keyval)** - 客户端消息存储
 
-### 后端
-- **Express** - Web 框架
-- **SQLite3** - 数据库
+### 后端 (EdgeOne Pages)
+- **Edge Functions** - KV 存储边缘函数
+- **Node Functions** - API 业务逻辑
+- **EdgeOne KV** - 订阅数据存储
 - **web-push** - Web Push API 封装
-- **jsonwebtoken** - JWT 认证
-- **Winston** - 日志框架
-- **cors** - 跨域支持
-- **dotenv** - 环境变量管理
 
 ## 项目结构
 
 ```
-workspace/
-├── package.json                # 根目录配置（仅含 concurrently）
-├── pnpm-lock.yaml              # 根目录 lock 文件
-├── docker-compose.yml          # Docker Compose 配置
-├── Dockerfile                  # Docker 构建配置
+project-root/
+├── index.html                  # HTML 入口
+├── package.json                # 依赖和脚本
+├── vite.config.ts              # Vite 配置
+├── tailwind.config.js          # Tailwind 配置
+├── postcss.config.js           # PostCSS 配置
+├── components.json             # shadcn/ui 配置
+├── tsconfig.json               # TypeScript 配置
+├── tsconfig.app.json           # 应用 TypeScript 配置
+├── tsconfig.node.json          # Node TypeScript 配置
+├── .env.example                # 环境变量示例
 │
-├── web/                        # 前端项目
-│   ├── package.json            # 前端依赖配置
-│   ├── pnpm-lock.yaml          # 前端 lock 文件
-│   ├── index.html              # HTML 入口
-│   ├── vite.config.ts          # Vite 配置
-│   ├── tailwind.config.js      # Tailwind 配置
-│   ├── postcss.config.js       # PostCSS 配置
-│   ├── components.json         # shadcn/ui 配置
-│   ├── tsconfig.json           # TypeScript 配置（引用）
-│   ├── tsconfig.app.json       # 应用 TypeScript 配置
-│   ├── tsconfig.node.json      # Node TypeScript 配置
-│   ├── .env                    # 前端环境变量
-│   ├── .env.example            # 前端环境变量示例
-│   ├── public/                 # 静态资源
-│   │   ├── favicon.svg
-│   │   └── sw.js               # Service Worker
-│   └── src/                    # 源代码
-│       ├── App.tsx             # 应用主组件
-│       ├── main.tsx            # 应用入口
-│       ├── style.css           # 全局样式
-│       ├── components/         # React 组件
-│       │   ├── ui/             # Radix UI 组件
-│       │   ├── BackgroundImage.tsx
-│       │   └── BottomNav.tsx
-│       ├── pages/              # 页面组件
-│       │   ├── Home.tsx        # 首页
-│       │   ├── Detail.tsx      # 详情页
-│       │   ├── Admin.tsx       # 管理后台
-│       │   ├── Push.tsx        # 推送发送
-│       │   ├── Login.tsx       # 登录页
-│       │   ├── Settings.tsx    # 设置页
-│       │   └── DebugLog.tsx    # 调试日志页
-│       ├── services/           # 服务层
-│       │   ├── authService.ts  # 认证服务
-│       │   ├── dbService.ts    # IndexedDB 服务
-│       │   ├── pushService.ts  # 推送服务
-│       │   └── debugService.ts # 调试日志服务
-│       ├── types/              # TypeScript 类型
-│       │   └── index.ts
-│       ├── utils/              # 工具函数
-│       │   ├── formatDate.ts
-│       │   └── swRegistration.ts
-│       └── lib/
-│           └── utils.ts        # 工具函数
-│
-├── server/                     # 后端项目
-│   ├── package.json            # 后端依赖配置
-│   ├── pnpm-lock.yaml          # 后端 lock 文件
-│   ├── index.js                # Express 服务器入口
-│   ├── .env                    # 后端环境变量
-│   ├── .env.example            # 后端环境变量示例
-│   ├── db/                     # 数据库
-│   │   └── database.js         # SQLite3 连接和初始化
-│   ├── routes/                 # 路由层
-│   │   ├── auth.js             # 认证路由
-│   │   ├── push.js             # 推送路由
-│   │   ├── records.js          # 推送记录路由
-│   │   ├── subscribe.js        # 订阅路由
-│   │   └── vapid.js            # VAPID 公钥路由
-│   ├── core/                   # 业务逻辑层
-│   │   ├── auth.js             # 认证逻辑
-│   │   ├── push.js             # 推送逻辑
-│   │   ├── subscribe.js        # 订阅逻辑
-│   │   └── records.js          # 记录查询逻辑
+├── src/                        # 前端源代码
+│   ├── App.tsx                 # 应用主组件
+│   ├── main.tsx                # 应用入口
+│   ├── style.css               # 全局样式
+│   ├── components/             # React 组件
+│   │   ├── ui/                 # Radix UI 组件
+│   │   ├── BackgroundImage.tsx
+│   │   └── BottomNav.tsx
+│   ├── pages/                  # 页面组件
+│   │   ├── Home.tsx            # 首页（消息列表）
+│   │   ├── Detail.tsx          # 消息详情
+│   │   ├── Push.tsx            # 发送推送
+│   │   ├── Settings.tsx        # 设置页
+│   │   └── DebugLog.tsx        # 调试日志
+│   ├── services/               # 服务层
+│   │   ├── dbService.ts        # IndexedDB 服务
+│   │   ├── pushService.ts      # 推送服务
+│   │   └── debugService.ts     # 调试日志服务
+│   ├── types/                  # TypeScript 类型
 │   ├── utils/                  # 工具函数
-│   │   ├── jwt.js              # JWT 生成和验证
-│   │   ├── response.js         # 响应格式化
-│   │   └── logger.js           # Winston 日志配置
-│   └── middleware/             # 中间件
-│       └── logger.js           # 日志中间件
+│   └── lib/                    # 工具函数
 │
-├── scripts/                    # 脚本文件
-│   ├── dev.sh                  # 开发环境初始化脚本
-│   └── docker.sh               # Docker 构建推送脚本
+├── public/                     # 静态资源
+│   ├── favicon.svg
+│   └── sw.js                   # Service Worker
 │
-├── data/                       # 数据目录（自动创建）
-│   ├── push.db                 # SQLite 数据库
-│   └── log/                    # 日志文件
+├── edge-functions/             # EdgeOne 边缘函数
+│   └── kv/index.js             # KV 存储操作
 │
-└── dist/                       # 构建输出目录
+├── node-functions/             # EdgeOne Node 函数
+│   ├── kv-client.js            # KV 客户端封装
+│   └── api/
+│       ├── vapid-key/index.js  # GET /api/vapid-key
+│       ├── subscribe/index.js  # POST /api/subscribe
+│       └── push/index.js       # POST /api/push
+│
+├── scripts/                    # 脚本
+│   └── dev.sh                  # 开发环境初始化
+│
+└── dist/                       # 构建输出（Vite 产物）
 ```
 
 ## API 文档
 
-### POST /api/auth/login
+### GET /api/vapid-key
 
-登录接口，获取 JWT token
-
-**请求体：**
-```json
-{
-  "password": "your-admin-password"
-}
-```
+获取 VAPID 公钥（前端订阅推送时使用）
 
 **响应：**
 ```json
 {
+  "publicKey": "BMVYhYEUXHMPeaAvO4f0NmA1jvk5DkpCjOWl-4Tx2YiheMU7pu7Ef0VZ1M0bY90ySSVKoTXY8y9AMY9pY5q9pT0"
+}
+```
+
+### POST /api/subscribe
+
+保存或取消推送订阅（支持白名单过滤）
+
+**请求体：**
+```json
+{
+  "action": "subscribe",
+  "userId": "user_1234567890_abc123",
+  "endpoint": "https://fcm.googleapis.com/...",
+  "keys": {
+    "p256dh": "...",
+    "auth": "..."
+  }
+}
+```
+
+**参数说明：**
+- `action` - `"subscribe"` 订阅，`"unsubscribe"` 取消订阅
+- `userId` - 用户唯一标识
+- `endpoint` - 推送服务端点 URL
+- `keys.p256dh` - 用户代理公钥
+- `keys.auth` - 认证密钥
+
+**订阅成功响应：**
+```json
+{
   "success": true,
-  "token": "jwt-token-here"
+  "message": "订阅成功"
+}
+```
+
+**白名单拒绝响应：**
+```json
+{
+  "success": false,
+  "message": "非白名单用户拒绝订阅"
 }
 ```
 
 ### POST /api/push
 
-发送推送消息（需要 PUSH_TOKEN）
+发送推送消息（可通过 PUSH_TOKEN 认证，支持广播和定向推送）
 
-**请求头：**
+**请求头（可选）：**
 ```
 Authorization: Bearer your-push-token
-Content-Type: application/json
 ```
 
 **请求体：**
@@ -415,84 +367,23 @@ Content-Type: application/json
 ```
 
 **参数说明：**
-- `title`（必填）- 推送标题，最多 50 字符
-- `content`（必填）- 推送内容，最多 200 字符
-- `imageUrl`（可选）- 图片 URL
-- `targetUserId`（可选）- 目标用户 ID，留空则广播
+- `title`（必填）- 推送标题
+- `content`（必填）- 推送内容
+- `imageUrl`（可选）- 封面图片 URL
+- `targetUserId`（可选）- 目标用户 ID，不传则广播给所有订阅者
 
 **响应：**
 ```json
 {
   "success": true,
-  "message": "推送成功！已发送给 5 个用户",
-  "pushedCount": 5
+  "message": "推送完成",
+  "pushedCount": 5,
+  "totalSubscriptions": 6,
+  "failedCount": 1
 }
 ```
 
-### POST /api/subscribe
 
-保存推送订阅信息
-
-**请求体：**
-```json
-{
-  "userId": "user_1234567890_abc123",
-  "endpoint": "https://fcm.googleapis.com/...",
-  "keys": {
-    "p256dh": "...",
-    "auth": "..."
-  }
-}
-```
-
-**响应：**
-```json
-{
-  "success": true
-}
-```
-
-### GET /api/records/list
-
-获取推送记录（需要 JWT token）
-
-**请求头：**
-```
-Authorization: Bearer your-jwt-token
-```
-
-**响应：**
-```json
-{
-  "success": true,
-  "records": [
-    {
-      "id": "magic_push_record:1",
-      "title": "消息标题",
-      "content": "消息内容",
-      "imageUrl": "https://...",
-      "timestamp": 1234567890,
-      "targetUserId": "user_123"
-    }
-  ]
-}
-```
-
-### GET /api/vapid-key
-
-获取 VAPID 公钥（前端订阅推送时使用）
-
-**响应：**
-```json
-{
-  "success": true,
-  "publicKey": "BMVYhYEUXHMPeaAvO4f0NmA1jvk5DkpCjOWl-4Tx2YiheMU7pu7Ef0VZ1M0bY90ySSVKoTXY8y9AMY9pY5q9pT0"
-}
-```
-
-## 样式系统
-
-项目使用 CSS 变量实现主题切换，支持亮色和深色模式。
 
 ### CSS 变量
 
@@ -526,36 +417,42 @@ Authorization: Bearer your-jwt-token
 - `--glass-strong` - 玻璃态强背景
 - `--glass-border` - 玻璃态边框
 
-### 使用示例
+## 部署到 EdgeOne Pages
 
-```tsx
-// 使用主题色
-<div className="bg-primary text-primary-foreground" />
+### 1. 环境变量配置
 
-// 使用渐变
-<div className="bg-gradient-to-br from-gradient-start to-gradient-end" />
+在 EdgeOne Pages 控制台配置以下环境变量：
 
-// 使用玻璃态
-<div className="bg-glass backdrop-blur-md border border-glass-border" />
+| 变量 | 说明 | 必需 |
+|------|------|------|
+| `VAPID_PUBLIC_KEY` | Web Push 公钥 | 是 |
+| `VAPID_PRIVATE_KEY` | Web Push 私钥 | 是 |
+| `EMAIL` | VAPID 联系邮箱 | 否 |
+| `PUSH_TOKEN` | 推送 API 认证令牌（不设置则关闭认证） | 否 |
+| `ALLOWED_USERS` | 用户白名单，逗号分隔（不设置则允许任何人订阅） | 否 |
+| `KV_API_KEY` | KV 存储访问密钥 | 是 |
 
-// 使用成功色
-<div className="bg-success text-success-foreground" />
+### 2. 生成 VAPID 密钥
+
+```bash
+pnpm run generate-vapid
 ```
+
+### 3. 部署
+
+将项目连接到 EdgeOne Pages：
+- 构建命令：`pnpm run build`
+- 输出目录：`dist`
+- EdgeOne 会自动识别 `edge-functions/` 和 `node-functions/` 目录
+
+### 前端环境变量（可选）
+
+| 变量 | 说明 |
+|------|------|
+| `VITE_BG_URL` | 自定义背景图片 URL |
+| `VITE_API_URL` | API 地址（部署后同域，通常不需要设置） |
 
 ## 开发注意事项
-
-### API 代理
-
-在开发模式下，Vite 会自动将 `/api` 请求代理到后端服务器（默认端口 3001）。可通过环境变量 `VITE_API_URL` 自定义。配置在 `vite.config.ts`：
-
-```typescript
-proxy: {
-  '/api': {
-    target: process.env.VITE_API_URL || 'http://localhost:3001',
-    changeOrigin: true,
-  }
-}
-```
 
 ### Service Worker
 
@@ -565,86 +462,22 @@ Service Worker 源文件位于 `public/sw.js`，构建时会被 Vite 自动复�
 pnpm run build
 ```
 
-在开发环境中，Service Worker 也会被注册（移除了 `import.meta.env.PROD` 条件），方便测试。
-
 ### 主题切换
 
-所有颜色都使用 CSS 变量，自动适配亮色和深色模式。硬编码颜色值已全部替换为 CSS 变量。
+所有颜色都使用 CSS 变量，自动适配亮色和深色模式。
 
 ### 数据存储
 
 - **前端**：IndexedDB 存储推送消息（`keyval-store` 数据库，`messages` 对象存储）
-- **后端**：SQLite3 存储推送订阅和记录（`data/push.db`）
-- **本地存储**：localStorage 存储 JWT token、PUSH_TOKEN、用户 ID 等
-
-### 日志系统
-
-项目使用 Winston 日志框架，特性包括：
-- 按日期自动轮转日志文件
-- 不同级别的日志输出（info、warn、error、success）
-- 结构化日志，便于分析和调试
-- 日志审计和保留策略
-- 前端调试日志功能
+- **后端**：EdgeOne KV 存储订阅信息（`webpush_subscription:` 前缀）
+- **本地存储**：localStorage 存储 PUSH_TOKEN、用户 ID 等
 
 ### 安全性
 
-- 密码使用环境变量配置
-- JWT Token 认证保护敏感接口
-- PUSH_TOKEN 验证推送接口
+- PUSH_TOKEN 验证推送接口（可选）
+- 白名单过滤订阅用户（可选）
 - XSS 防护：HTML 内容过滤
 - 自动清理无效订阅（410、404、ENOTFOUND 等错误）
-
-## 部署
-
-### 环境变量配置
-
-**后端 (`server/.env`)：**
-| 变量 | 说明 | 必需 |
-|------|------|------|
-| `PORT` | 服务端口，默认 3001 | 否 |
-| `JWT_SECRET` | JWT 签名密钥 | 是 |
-| `ADMIN_PASSWORD` | 管理员登录密码 | 是 |
-| `PUSH_TOKEN` | 推送 API 认证令牌 | 是 |
-| `VAPID_PUBLIC_KEY` | Web Push 公钥 | 是 |
-| `VAPID_PRIVATE_KEY` | Web Push 私钥 | 是 |
-
-**前端 (`web/.env`)：**
-| 变量 | 说明 | 必需 |
-|------|------|------|
-| `VITE_BG_URL` | 背景图片 URL | 否 |
-| `VITE_API_URL` | API 地址 | 否 |
-
-### Docker 部署
-
-#### 使用预构建镜像
-
-```bash
-docker run -d \
-  --name magic-push \
-  -p 3001:3001 \
-  -e ADMIN_PASSWORD=your-admin-password \
-  -e JWT_SECRET=your-jwt-secret \
-  -e PUSH_TOKEN=your-push-token \
-  -e VAPID_PUBLIC_KEY=your-vapid-public-key \
-  -e VAPID_PRIVATE_KEY=your-vapid-private-key \
-  -v $(pwd)/data:/app/data \
-  --restart unless-stopped \
-  your-username/magic-push:latest
-```
-
-#### 自行构建
-
-```bash
-# 构建并推送到 Docker Hub 和 CNB
-./scripts/docker.sh        # main 分支 -> latest 标签
-./scripts/docker.sh dev    # dev 分支 -> dev 标签
-```
-
-需要设置环境变量：
-- `DOCKERHUB_USERNAME` - Docker Hub 用户名
-- `DOCKERHUB_TOKEN` - Docker Hub PAT 令牌
-- `CNB_DOCKER_REGISTRY` - CNB Docker 注册表地址
-- `CNB_REPO_SLUG_LOWERCASE` - CNB 仓库路径
 
 ## 许可证
 

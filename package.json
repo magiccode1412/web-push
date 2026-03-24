@@ -1,17 +1,41 @@
 {
-  "name": "web-push",
+  "name": "magic-push",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev:web": "pnpm --filter ./web run dev",
-    "dev:server": "pnpm --filter ./server run dev",
-    "dev:all": "concurrently \"pnpm run dev:web\" \"pnpm run dev:server\"",
-    "build": "pnpm --filter ./web run build",
-    "preview": "pnpm --filter ./web run preview",
-    "start": "pnpm --filter ./server run start"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "generate-vapid": "node -e \"const webpush = require('web-push'); const keys = webpush.generateVAPIDKeys(); console.log('VAPID_PUBLIC_KEY=' + keys.publicKey); console.log('VAPID_PRIVATE_KEY=' + keys.privateKey);\""
+  },
+  "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "idb-keyval": "^6.2.1",
+    "lucide-react": "^0.563.0",
+    "marked": "^17.0.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.0",
+    "tailwind-merge": "^3.4.0",
+    "web-push": "^3.6.7",
+    "workbox-window": "^7.4.0"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@types/node": "^25.1.0",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.10"
   }
 }
