@@ -19,11 +19,11 @@
 
 + 国内版
 
-[![使用 EdgeOne Pages 部署](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://console.cloud.tencent.com/edgeone/pages/new?repository-url=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push&repository-name=web-push&project-name=web-push&build-command=pnpm+build&install-command=pnpm+i&output-directory=.%2Fdist&env=VAPID_PUBLIC_KEY%2CVAPID_PRIVATE_KEY%2CPUSH_TOKEN%2CKV_API_KEY&env-description=%E8%AF%A6%E7%BB%86%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AF%B4%E6%98%8E%E8%AF%B7%E7%82%B9%E5%87%BB%E2%9E%A1%EF%B8%8F&env-link=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push%2Fblob%2Fmain%2F.env.example)
+[![使用 EdgeOne Pages 部署](public/deploy.svg)](https://console.cloud.tencent.com/edgeone/pages/new?repository-url=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push&repository-name=web-push&project-name=web-push&build-command=pnpm+build&install-command=pnpm+i&output-directory=.%2Fdist&env=VAPID_PUBLIC_KEY%2CVAPID_PRIVATE_KEY%2CPUSH_TOKEN%2CKV_API_KEY&env-description=%E8%AF%A6%E7%BB%86%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AF%B4%E6%98%8E%E8%AF%B7%E7%82%B9%E5%87%BB%E2%9E%A1%EF%B8%8F&env-link=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push%2Fblob%2Fmain%2F.env.example)
 
 + 国际版
 
-[![使用 EdgeOne Pages 部署](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/edgeone/pages/new?repository-url=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push&repository-name=web-push&project-name=web-push&build-command=pnpm+build&install-command=pnpm+i&output-directory=.%2Fdist&env=VAPID_PUBLIC_KEY%2CVAPID_PRIVATE_KEY%2CPUSH_TOKEN%2CKV_API_KEY&env-description=%E8%AF%A6%E7%BB%86%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AF%B4%E6%98%8E%E8%AF%B7%E7%82%B9%E5%87%BB%E2%9E%A1%EF%B8%8F&env-link=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push%2Fblob%2Fmain%2F.env.example)
+[![使用 EdgeOne Pages 部署](public/deploy.svg)](https://edgeone.ai/edgeone/pages/new?repository-url=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push&repository-name=web-push&project-name=web-push&build-command=pnpm+build&install-command=pnpm+i&output-directory=.%2Fdist&env=VAPID_PUBLIC_KEY%2CVAPID_PRIVATE_KEY%2CPUSH_TOKEN%2CKV_API_KEY&env-description=%E8%AF%A6%E7%BB%86%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AF%B4%E6%98%8E%E8%AF%B7%E7%82%B9%E5%87%BB%E2%9E%A1%EF%B8%8F&env-link=https%3A%2F%2Fgithub.com%2Fmagiccode1412%2Fweb-push%2Fblob%2Fmain%2F.env.example)
 
 
 ## 原理
