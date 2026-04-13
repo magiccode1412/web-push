@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Trash2, ChevronRight, RefreshCw, Send, Image, ImageOff, Bug, Terminal, Database, Settings as SettingsIcon, Info, Download, Upload } from 'lucide-react'
+import { Bell, Trash2, ChevronRight, RefreshCw, Send, Image, ImageOff, Bug, Terminal, Database, Settings as SettingsIcon, Info, Download, Upload, Timer } from 'lucide-react'
 import { pushService } from '@/services/pushService'
 import { dbService } from '@/services/dbService'
 import { Card } from '@/components/ui/card'
@@ -14,6 +14,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { getRefreshInterval, setRefreshInterval } from '@/hooks/useAutoRefresh'
 
 export function Settings() {
   const navigate = useNavigate()
@@ -30,6 +31,9 @@ export function Settings() {
   const [showImportDialog, setShowImportDialog] = useState(false)
   const [importPreview, setImportPreview] = useState<{ messages: number; config: number } | null>(null)
   const [importFileData, setImportFileData] = useState<string | null>(null)
+  const [autoRefreshInterval, setAutoRefreshInterval] = useState(getRefreshInterval())
+  const [showRefreshDialog, setShowRefreshDialog] = useState(false)
+  const [refreshInput, setRefreshInput] = useState('')
 
   const isInitialized = useRef(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -42,6 +46,7 @@ export function Settings() {
     loadBackgroundImage()
     checkPushSubscription()
     loadBuildDate()
+    setAutoRefreshInterval(getRefreshInterval())
   }, [])
 
   function loadUserId() {
@@ -357,6 +362,23 @@ export function Settings() {
     navigate('/')
   }
 
+  function openRefreshDialog() {
+    setRefreshInput(String(autoRefreshInterval))
+    setShowRefreshDialog(true)
+  }
+
+  function saveAutoRefreshInterval() {
+    const value = parseInt(refreshInput, 10)
+    if (isNaN(value) || value < 1 || value > 3600) {
+      showToastMessage('请输入 1~3600 之间的整数', 'error')
+      return
+    }
+    setRefreshInterval(value)
+    setAutoRefreshInterval(value)
+    setShowRefreshDialog(false)
+    showToastMessage(`自动刷新间隔已设置为 ${value} 秒`, 'success')
+  }
+
   return (
     <div className="min-h-screen max-w-[800px] mx-auto">
       {/* 顶部标题栏 */}
@@ -534,6 +556,25 @@ export function Settings() {
           </div>
         </Card>
 
+        {/* 自动刷新设置 */}
+        <Card className="glow-card rounded-lg mb-4 overflow-hidden">
+          <div
+            className="flex items-center justify-between p-4 cursor-pointer transition-colors hover:bg-card/80"
+            onClick={openRefreshDialog}
+          >
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-neon-green/10 border border-neon-green/30">
+                <Timer size={18} className="text-neon-green" />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-semibold text-foreground font-mono">AUTO_REFRESH</span>
+                <span className="text-xs text-muted-foreground font-mono">// 自动刷新间隔: {autoRefreshInterval} 秒</span>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-muted-foreground" />
+          </div>
+        </Card>
+
         {/* 应用信息 */}
         <Card className="glow-card rounded-lg mb-4 overflow-hidden">
           <div className="px-4 py-3">
@@ -668,6 +709,43 @@ export function Settings() {
               onClick={confirmImport}
             >
               IMPORT
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* 自动刷新设置对话框 */}
+      <Dialog open={showRefreshDialog} onOpenChange={setShowRefreshDialog}>
+        <DialogContent className="bg-card border border-border rounded-lg w-[90%] max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold text-foreground font-mono flex items-center gap-2">
+              <Timer size={16} className="text-neon-green" />
+              SET_AUTO_REFRESH
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-4 pt-0">
+            <p className="text-xs text-muted-foreground mb-4 font-mono">// 设置自动从存储刷新数据的间隔（秒），范围 1~3600</p>
+            <Input
+              value={refreshInput}
+              onChange={(e) => setRefreshInput(e.target.value.replace(/[^0-9]/g, ''))}
+              type="number"
+              min={1}
+              max={3600}
+              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm font-mono bg-background focus:border-neon-cyan outline-none transition-colors"
+              placeholder="输入刷新间隔（秒）..."
+            />
+          </div>
+          <DialogFooter className="flex gap-3 px-4 pb-4">
+            <Button
+              className="flex-1 py-2.5 bg-transparent border border-border rounded-lg text-sm font-mono cursor-pointer hover:bg-card transition-colors text-muted-foreground"
+              onClick={() => setShowRefreshDialog(false)}
+            >
+              CANCEL
+            </Button>
+            <Button
+              className="flex-1 py-2.5 bg-neon-green text-background rounded-lg text-sm font-mono cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              onClick={saveAutoRefreshInterval}
+            >
+              SAVE
             </Button>
           </DialogFooter>
         </DialogContent>

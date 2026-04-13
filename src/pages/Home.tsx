@@ -1,29 +1,31 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sparkles, TrendingUp, Terminal } from 'lucide-react'
+import { Sparkles, TrendingUp, Terminal, RefreshCw } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { dbService } from '@/services/dbService'
 import type { Message } from '@/types'
+import { useAutoRefresh } from '@/hooks/useAutoRefresh'
 
 export function Home() {
   const navigate = useNavigate()
   const [items, setItems] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        const messages = await dbService.getAllMessages()
-        setItems(messages)
-      } catch (error) {
-        console.error('加载消息失败:', error)
-      } finally {
-        setIsLoading(false)
-      }
+  const loadMessages = useCallback(async () => {
+    try {
+      const messages = await dbService.getAllMessages()
+      setItems(messages)
+    } catch (error) {
+      console.error('加载消息失败:', error)
+    } finally {
+      setIsLoading(false)
     }
-
-    loadMessages()
   }, [])
+
+  useEffect(() => { loadMessages() }, [])
+
+  // 自动定时从 IndexedDB 读取最新消息更新页面
+  const { interval: refreshInterval } = useAutoRefresh(loadMessages)
 
   const goToDetail = (id: string) => {
     navigate(`/detail/${id}`)
@@ -76,7 +78,10 @@ export function Home() {
             <span className="text-neon-cyan">HELLO</span>
             <span className="text-muted-foreground">, USER</span>
           </h1>
-          <p className="text-xs text-muted-foreground font-mono m-0">// 系统就绪，等待接收数据...</p>
+          <p className="text-xs text-muted-foreground font-mono m-0 flex items-center gap-1.5">
+            <RefreshCw size={12} className="text-neon-green/60" />
+            系统就绪 | 自动刷新: {refreshInterval}s
+          </p>
         </div>
       </header>
 
